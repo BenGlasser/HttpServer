@@ -1,9 +1,12 @@
 package com.benglasser.http.response;
 
-import com.benglasser.http.header.*;
+import com.benglasser.http.header.EntityHeader;
+import com.benglasser.http.header.GeneralHeader;
+import com.benglasser.http.header.ResponseHeader;
+import com.benglasser.http.header.StatusLine;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import lombok.experimental.Builder;
 
 import java.util.Optional;
 
@@ -12,7 +15,6 @@ import java.util.Optional;
  */
 
 @Value
-@Builder
 @RequiredArgsConstructor
 public class Response {
 //  Response      = Status-Line   ; Section 6.1
@@ -23,27 +25,84 @@ public class Response {
 //  [ message-body ]              ; Section 7.2
 
 
+  @NonNull
   private final StatusLine statusLine;
-  private final GeneralHeader generalHeader;
-  private final ResponseHeader responseHeader;
-  private final EntityHeader entitylHeader;
-  private final String messageBody;
+  private final Optional<GeneralHeader> generalHeader;
+  private final Optional<ResponseHeader> responseHeader;
+  private final Optional<EntityHeader> entitylHeader;
+  private final Optional<String> messageBody;
+
+  public static ResponseBuilder builder() {
+    return new ResponseBuilder();
+  }
 
   @Override
   public String toString() {
-    return statusLine.toString() + '\n'
-        + Optional.ofNullable(generalHeader)
-          .orElse(GeneralHeader.emptyGeneralheader())
-          .toString() + '\n'
-        + Optional.ofNullable(responseHeader)
-          .orElse(ResponseHeader.emptyResponseHeader())
-          .toString() + '\n'
-        + Optional.ofNullable(entitylHeader)
-          .orElse(EntityHeader.emptyEntityHeader())
-          .toString()
+    String headers = generalHeader
+        .orElse(GeneralHeader.builder().build())
+        .toString()
+        + responseHeader
+        .orElse(ResponseHeader.builder().build())
+        .toString()
+        + entitylHeader
+        .orElse(EntityHeader.builder().build())
+        .toString();
+
+    return statusLine.toString()
+        // if there are any headers we need to follow with CLRF
+        // otherwise there is no need
+        + ((Optional.ofNullable(headers).isPresent()) ? headers :"")
         + "\r\n"
-        + Optional.ofNullable(messageBody).orElse("")
-        + "\r\n";
+        + messageBody.orElse("");
+  }
+
+  public static class ResponseBuilder {
+    private StatusLine statusLine;
+    private GeneralHeader generalHeader;
+    private ResponseHeader responseHeader;
+    private EntityHeader entitylHeader;
+    private String messageBody;
+
+    ResponseBuilder() {
+    }
+
+    public Response.ResponseBuilder statusLine(final StatusLine statusLine) {
+      this.statusLine = statusLine;
+      return this;
+    }
+
+    public Response.ResponseBuilder generalHeader(final GeneralHeader generalHeader) {
+      this.generalHeader = generalHeader;
+      return this;
+    }
+
+    public Response.ResponseBuilder responseHeader(final ResponseHeader responseHeader) {
+      this.responseHeader = responseHeader;
+      return this;
+    }
+
+    public Response.ResponseBuilder entitylHeader(final EntityHeader entitylHeader) {
+      this.entitylHeader = entitylHeader;
+      return this;
+    }
+
+    public Response.ResponseBuilder messageBody(final String messageBody) {
+      this.messageBody = messageBody;
+      return this;
+    }
+
+    public Response build() {
+      return new Response(
+          statusLine,
+          Optional.ofNullable(generalHeader),
+          Optional.ofNullable(responseHeader),
+          Optional.ofNullable(entitylHeader),
+          Optional.ofNullable(messageBody));
+    }
+
+    public String toString() {
+      return "com.benglasser.http.response.Response.ResponseBuilder(statusLine=" + this.statusLine + ", generalHeader=" + this.generalHeader + ", responseHeader=" + this.responseHeader + ", entitylHeader=" + this.entitylHeader + ", messageBody=" + this.messageBody + ")";
+    }
   }
 }
 

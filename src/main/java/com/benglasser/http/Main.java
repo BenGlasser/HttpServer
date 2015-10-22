@@ -10,8 +10,10 @@ import java.util.concurrent.ExecutorService;
 /**
  * Created by bglasser on 10/19/15.
  */
-public class Main {
-  public static void main(String[] args) throws IOException {
+public class Main
+{
+  public static void main(String[] args) throws IOException
+  {
     Injector injector = Guice.createInjector(new MainModule());
     HttpServer myServer = new HttpServer(injector.getInstance(ExecutorService.class));
     myServer.start();
@@ -27,6 +29,6 @@ public class Main {
     });
 
     // run forever
-    for(;;);
+    for (; ; ) ;
   }
 }

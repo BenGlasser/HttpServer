@@ -15,7 +15,8 @@ import lombok.experimental.Builder;
 @Value
 @Builder
 @RequiredArgsConstructor
-public class Request {
+public class Request
+{
   //  https://tools.ietf.org/html/rfc2616#section-5
   //  Request = Request-Line        ; Section 5.1
   //      *(( general-header        ; Section 4.5

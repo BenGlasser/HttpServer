@@ -1,5 +1,6 @@
 package com.benglasser.http.header;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Builder;
@@ -13,16 +14,20 @@ import lombok.experimental.Builder;
 public class StatusLine {
   // Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
 
-
+  @NonNull
   private final String httpVersion;
+
+  @NonNull
   private final String statusCode;
+
+  @NonNull
   private final String reasonPhrase;
 
   @Override
   public String toString() {
     return this.httpVersion + " "
         + this.statusCode + " "
-        + this.reasonPhrase;
+        + this.reasonPhrase + "\r\n";
   }
 
   public static StatusLine get404()

@@ -29,7 +29,6 @@ public class RequestParser {
    * @see <a href="https://tools.ietf.org/html/rfc2616#section-4.5">RFC 2616 section 4.5</a>
    */
   public Request parse()
-
   //  https://tools.ietf.org/html/rfc2616#section-5
   //  Request = Request-Line        ; Section 5.1
   //      *(( general-header        ; Section 4.5
@@ -37,11 +36,8 @@ public class RequestParser {
   //      | entity-header ) CRLF)   ; Section 7.1
   //     CRLF
   //     [ message-body ]           ; Section 4.3
-
   {
-    if (request == null) {
-      return null; //no need to continue
-    } else {
+    if (request != null) {
       log.info("parsing request: {}", request);
       final RequestLine.RequestLineBuilder requestLineBuilder = RequestLine.builder();
       final GeneralHeader.GeneralHeaderBuilder generalHeaderBuilder = GeneralHeader.builder();
@@ -55,10 +51,10 @@ public class RequestParser {
         //  first we strip off the request line
         final String line = lines.get(0);
         final String[] inputLineParts = line.split(" ");
-        log.info("<<<<<<<<<<<<< line parts: {} {} {}", inputLineParts);
+        log.debug("line parts: {} {} {}", inputLineParts);
         Optional.ofNullable(inputLineParts[0]).map((part1) ->
         {
-          log.info(">>>>>>>> Part 1: {}", part1);
+          log.debug("Request Method: ", part1);
           requestLineBuilder.method(RequestLine.Method.valueOf(part1));
           Optional.ofNullable(inputLineParts[1]).map((part2) ->
               requestLineBuilder.requestUri(part2));

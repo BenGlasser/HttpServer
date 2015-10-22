@@ -20,7 +20,7 @@ public class HttpServer {
       System.out.println("Listening on port " + LISTENING_PORT);
       for (; ; ) {
         Socket connection = listener.accept();
-        RequestHandler handler = RequestHandler.getInstance(connection, "src/main/resources/srv/www/");
+        RequestHandler handler = RequestHandler.getInstance(connection, "src/main/resources/srv/www");
         executor.execute(handler);
       }
     } catch (Exception e) {

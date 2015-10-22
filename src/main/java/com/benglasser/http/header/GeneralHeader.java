@@ -1,9 +1,7 @@
 package com.benglasser.http.header;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import lombok.experimental.Builder;
 
 import java.util.Optional;
 
@@ -12,9 +10,9 @@ import java.util.Optional;
  */
 
 @Value
-@Builder
 @AllArgsConstructor
-public class GeneralHeader {
+public class GeneralHeader
+{
   // https://tools.ietf.org/html/rfc2616#section-4.5
   //  general-header = Cache-Control            ; Section 14.9
   //      | Connection               ; Section 14.10
@@ -38,29 +36,126 @@ public class GeneralHeader {
   public final static String WARNING = "Warning";
 
   // HEADER FIELDS ////////////////////////////////////////////////////////////////////////////////////////////////////
-  private final String cache_control;
-  private final String connection;
-  private final String date;
-  private final String pragma;
-  private final String trailer;
-  private final String transferEncoding;
-  private final String upgrade;
-  private final String via;
-  private final String warning;
+  private final Optional<String> cache_control;
+  private final Optional<String> connection;
+  private final Optional<String> date;
+  private final Optional<String> pragma;
+  private final Optional<String> trailer;
+  private final Optional<String> transferEncoding;
+  private final Optional<String> upgrade;
+  private final Optional<String> via;
+  private final Optional<String> warning;
 
-
-  public static GeneralHeader emptyGeneralheader()
+  public static GeneralHeaderBuilder builder()
   {
-    return new GeneralHeader("", "", "", "", "", "", "", "", "");
+    return new GeneralHeaderBuilder();
   }
+
 
   @Override
   public String toString()
   {
-    Optional <String> opt;
 
-    opt.orElse()
-    return Optional.ofNullable(cache_control).orElse("")
-        +
+    return ((cache_control.isPresent()) ? CACHE_CONTROL + ": " + cache_control.get() + "\n" : "")
+        + ((connection.isPresent()) ? CONNECTION + ": " + connection.get() + "\n" : "")
+        + ((date.isPresent()) ? DATE + ": " + date.get() + "\n" : "")
+        + ((pragma.isPresent()) ? PRAGMA + ": " + pragma.get() + "\n" : "")
+        + ((trailer.isPresent()) ? TRAILER + ": " + trailer.get() + "\n" : "")
+        + ((transferEncoding.isPresent()) ? TRANSFER_ENCODING + ": " + transferEncoding.get() + "\n" : "")
+        + ((upgrade.isPresent()) ? UPGRADE + ": " + upgrade.get() + "\n" : "")
+        + ((via.isPresent()) ? VIA + ": " + via.get() + "\n" : "")
+        + ((warning.isPresent()) ? WARNING + ": " + warning.get() + "\n" : "");
+  }
+
+  public static class GeneralHeaderBuilder
+  {
+    private String cache_control;
+    private String connection;
+    private String date;
+    private String pragma;
+    private String trailer;
+    private String transferEncoding;
+    private String upgrade;
+    private String via;
+    private String warning;
+
+    GeneralHeaderBuilder()
+    {
+    }
+
+    public GeneralHeader.GeneralHeaderBuilder cache_control(final String cache_control)
+    {
+      this.cache_control = cache_control;
+      return this;
+    }
+
+    public GeneralHeader.GeneralHeaderBuilder connection(final String connection)
+    {
+      this.connection = connection;
+      return this;
+    }
+
+    public GeneralHeader.GeneralHeaderBuilder date(final String date)
+    {
+      this.date = date;
+      return this;
+    }
+
+    public GeneralHeader.GeneralHeaderBuilder pragma(final String pragma)
+    {
+      this.pragma = pragma;
+      return this;
+    }
+
+    public GeneralHeader.GeneralHeaderBuilder trailer(final String trailer)
+    {
+      this.trailer = trailer;
+      return this;
+    }
+
+    public GeneralHeader.GeneralHeaderBuilder transferEncoding(final String transferEncoding)
+    {
+      this.transferEncoding = transferEncoding;
+      return this;
+    }
+
+    public GeneralHeader.GeneralHeaderBuilder upgrade(final String upgrade)
+    {
+      this.upgrade = upgrade;
+      return this;
+    }
+
+    public GeneralHeader.GeneralHeaderBuilder via(final String via)
+    {
+      this.via = via;
+      return this;
+    }
+
+    public GeneralHeader.GeneralHeaderBuilder warning(final String warning)
+    {
+      this.warning = warning;
+      return this;
+    }
+
+    public GeneralHeader build()
+    {
+      return new GeneralHeader(
+          Optional.ofNullable(cache_control),
+          Optional.ofNullable(connection),
+          Optional.ofNullable(date),
+          Optional.ofNullable(pragma),
+          Optional.ofNullable(trailer),
+          Optional.ofNullable(transferEncoding),
+          Optional.ofNullable(upgrade),
+          Optional.ofNullable(via),
+          Optional.ofNullable(warning));
+    }
+
+    public String toString()
+    {
+      return "com.benglasser.http.header.GeneralHeader.GeneralHeaderBuilder(cache_control=" + this.cache_control + "," +
+          " connection=" + this.connection + ", date=" + this.date + ", pragma=" + this.pragma + ", trailer=" + this
+          .trailer + ", transferEncoding=" + this.transferEncoding + ", upgrade=" + this.upgrade + ", via=" + this.via + ", warning=" + this.warning + ")";
+    }
   }
 }
