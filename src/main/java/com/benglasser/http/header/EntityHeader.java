@@ -1,5 +1,6 @@
 package com.benglasser.http.header;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Builder;
@@ -10,7 +11,7 @@ import lombok.experimental.Builder;
 
 @Value
 @Builder
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class EntityHeader {
 //  https://tools.ietf.org/html/rfc2616#section-7.1
 //  entity-header  = Allow                    ; Section 14.7
@@ -48,4 +49,7 @@ public class EntityHeader {
   private final String expires;
   private final String lastModified;
 
+  public static EntityHeader emptyEntityHeader() {
+    return new EntityHeader("", "", "", "", "", "", "", "", "", "");
+  }
 }

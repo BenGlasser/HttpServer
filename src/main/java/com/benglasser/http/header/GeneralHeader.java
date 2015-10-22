@@ -1,8 +1,11 @@
 package com.benglasser.http.header;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Builder;
+
+import java.util.Optional;
 
 /**
  * Created by bglasser on 10/19/15.
@@ -10,7 +13,7 @@ import lombok.experimental.Builder;
 
 @Value
 @Builder
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class GeneralHeader {
   // https://tools.ietf.org/html/rfc2616#section-4.5
   //  general-header = Cache-Control            ; Section 14.9
@@ -44,4 +47,20 @@ public class GeneralHeader {
   private final String upgrade;
   private final String via;
   private final String warning;
+
+
+  public static GeneralHeader emptyGeneralheader()
+  {
+    return new GeneralHeader("", "", "", "", "", "", "", "", "");
+  }
+
+  @Override
+  public String toString()
+  {
+    Optional <String> opt;
+
+    opt.orElse()
+    return Optional.ofNullable(cache_control).orElse("")
+        +
+  }
 }

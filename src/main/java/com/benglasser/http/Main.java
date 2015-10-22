@@ -2,15 +2,18 @@ package com.benglasser.http;
 
 import com.benglasser.http.modules.MainModule;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by bglasser on 10/19/15.
  */
 public class Main {
   public static void main(String[] args) throws IOException {
-    HttpServer myServer = new HttpServer(new MainModule());
+    Injector injector = Guice.createInjector(new MainModule());
+    HttpServer myServer = new HttpServer(injector.getInstance(ExecutorService.class));
     myServer.start();
 
     Runtime.getRuntime().addShutdownHook(new Thread()
@@ -25,6 +28,5 @@ public class Main {
 
     // run forever
     for(;;);
-
   }
 }

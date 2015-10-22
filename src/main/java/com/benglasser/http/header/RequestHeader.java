@@ -1,5 +1,6 @@
 package com.benglasser.http.header;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Builder;
@@ -11,7 +12,7 @@ import java.net.URI;
  */
 @Value
 @Builder
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class RequestHeader{
 //  https://tools.ietf.org/html/rfc2616#section-5.3
 //  request-header = Accept                   ; Section 14.1
@@ -43,4 +44,9 @@ public class RequestHeader{
   private final String from;
   private final String host;
   private final String ifMatch;
+
+  public static RequestHeader emptyRequestHeader()
+  {
+    return new RequestHeader("", "", "", "", "", "", "", "", "");
+  }
 }
