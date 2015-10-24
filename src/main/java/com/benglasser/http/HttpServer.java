@@ -14,8 +14,6 @@ import java.util.concurrent.ExecutorService;
 @RequiredArgsConstructor
 public class HttpServer {
 
-  private Thread runningThread= null;
-
   private final ExecutorService executor;
   private final ServerSocket listener;
 
