@@ -25,7 +25,9 @@ import java.util.Optional;
 public class RequestParser {
 
   /**
-   * parse request for connection and returns a Request object
+   * parse request for connection and returns a Request object.  First we strip the RequestLine off the request.
+   * Then Each subsequent line is added to the appropriate builder in the switch.  Once all line have been processed
+   * Each response type is built and used to build the final Request object.
    *
    * @return
    * @see <a href="https://tools.ietf.org/html/rfc2616#section-4.5">RFC 2616 section 4.5</a>
@@ -39,31 +41,30 @@ public class RequestParser {
   //     CRLF
   //     [ message-body ]           ; Section 4.3
   {
-    final Request.RequestBuilder requestBuilder = Request.builder();
     final RequestLine.RequestLineBuilder requestLineBuilder = RequestLine.builder();
     final GeneralHeader.GeneralHeaderBuilder generalHeaderBuilder = GeneralHeader.builder();
     final RequestHeader.RequestHeaderBuilder requestHeaderBuilder = RequestHeader.builder();
     final EntityHeader.EntityHeaderBuilder entityHeaderBuilder = EntityHeader.builder();
 
-    String requestLine = "";
+    String requestLine = in.readLine();
+    if (requestLine.contains("GET"))
+    {
+      final String[] inputLineParts = requestLine.split(" ");
+      log.debug("line parts: {} {} {}", inputLineParts);
+
+      requestLineBuilder
+          .method(RequestLine.Method.valueOf(inputLineParts[0]))
+          .requestUri(inputLineParts[1])
+          .httpVersion(inputLineParts[2])
+          .build();
+    }
     while(requestLine != null && !(requestLine = in.readLine()).equals(""))
     {
       if (requestLine.equals("")) break;
       log.info("parsing request: {}", requestLine);
 
       try {
-        if (requestLine.contains("GET"))
-        {
-          final String[] inputLineParts = requestLine.split(" ");
-          log.debug("line parts: {} {} {}", inputLineParts);
-
-          requestLineBuilder
-              .method(RequestLine.Method.valueOf(inputLineParts[0]))
-              .requestUri(inputLineParts[1])
-              .httpVersion(inputLineParts[2])
-              .build();
-        }
-        else if (requestLine.contains(":"))
+        if (requestLine.contains(":"))
         {
           log.debug("inputLine: {}", requestLine);
 

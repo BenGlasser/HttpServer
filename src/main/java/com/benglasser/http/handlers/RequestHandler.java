@@ -75,7 +75,7 @@ public class RequestHandler implements Runnable
                     .build())
                 .messageBody(fileContents)
                 .build();
-            log.info("sending response: {}", response);
+            log.info("sending response -\n{}", response);
             out.println(response);
           }
         } catch (NoSuchFileException e)
