@@ -15,7 +15,7 @@ public class Main
   public static void main(String[] args) throws IOException
   {
     Injector injector = Guice.createInjector(new MainModule());
-    HttpServer myServer = new HttpServer(injector.getInstance(ExecutorService.class));
+    HttpServer myServer = injector.getInstance(HttpServer.class);
     myServer.start();
 
     Runtime.getRuntime().addShutdownHook(new Thread()

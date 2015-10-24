@@ -39,37 +39,24 @@ public class RequestHandler implements Runnable
    * @return
    * @see <a href="https://tools.ietf.org/html/rfc2616#section-4.5">RFC 2616 section 4.5</a>
    */
-  @SneakyThrows
-  private Request parseRequest()
-  {
-    String request = "";
-    BufferedReader in =
-        new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-    String line;
-    do
-    {
-      line = in.readLine();
-      request += line + '\n';
-    } while (line != null && !line.equals(""));
-
-    return new RequestParser(request).parse();
-  }
 
   @Override
   public void run()
   {
-    final Request request = this.parseRequest();
+    //TODO: generify this and hand off individual GET, PUT, POST, etc...  requests to their own handlers
     // Handle Get Request
-    try
+    try (
+        final BufferedReader in =
+            new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        final PrintWriter out =
+            new PrintWriter(connection.getOutputStream(), true);
+    )
     {
+      final Request request = RequestParser.parse(in);
+
       if (request != null && request.getRequestLine().getMethod().compareTo(RequestLine.Method.GET) == 0)
       {
         log.info("parsed request: {}", request);
-
-        final PrintWriter out =
-            new PrintWriter(connection.getOutputStream(), true);
-
         try
         {
           final String path = rootDirectory + request.getRequestLine().getRequestUri();
@@ -87,14 +74,15 @@ public class RequestHandler implements Runnable
           {
             byte[] bytes = Files.readAllBytes(Paths.get(path));
             final String fileContents = new String(bytes, StandardCharsets.UTF_8);
-            out.println(
-                Response.builder()
-                    .statusLine(StatusLine.get200())
-                    .entitylHeader(EntityHeader.builder()
-                        .contentLength(String.valueOf(bytes.length + 1))
-                        .build())
-                    .messageBody(fileContents)
-                    .build());
+            final Response response = Response.builder()
+                .statusLine(StatusLine.get200())
+                .entitylHeader(EntityHeader.builder()
+                    .contentLength(String.valueOf(bytes.length + 1))
+                    .build())
+                .messageBody(fileContents)
+                .build();
+            log.info("sending response: {}", response);
+            out.println(response);
           }
         } catch (NoSuchFileException e)
         {
@@ -118,7 +106,7 @@ public class RequestHandler implements Runnable
       }
     } catch (Exception e)
     {
-      log.error("problem handling request: {}", request, e);
+      log.error("problem handling request", e);
     }
   }
 

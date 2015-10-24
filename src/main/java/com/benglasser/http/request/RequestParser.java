@@ -4,10 +4,14 @@ import com.benglasser.http.header.EntityHeader;
 import com.benglasser.http.header.GeneralHeader;
 import com.benglasser.http.header.RequestHeader;
 import com.benglasser.http.header.RequestLine;
+import com.google.common.collect.Lists;
+import com.sun.deploy.util.ArrayUtil;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -20,15 +24,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RequestParser {
 
-  private final String request;
-
   /**
    * parse request for connection and returns a Request object
    *
    * @return
    * @see <a href="https://tools.ietf.org/html/rfc2616#section-4.5">RFC 2616 section 4.5</a>
    */
-  public Request parse()
+  public static synchronized Request parse(final BufferedReader in) throws IOException
   //  https://tools.ietf.org/html/rfc2616#section-5
   //  Request = Request-Line        ; Section 5.1
   //      *(( general-header        ; Section 4.5
@@ -37,41 +39,40 @@ public class RequestParser {
   //     CRLF
   //     [ message-body ]           ; Section 4.3
   {
-    if (request != null) {
-      log.info("parsing request: {}", request);
-      final RequestLine.RequestLineBuilder requestLineBuilder = RequestLine.builder();
-      final GeneralHeader.GeneralHeaderBuilder generalHeaderBuilder = GeneralHeader.builder();
-      final RequestHeader.RequestHeaderBuilder requestHeaderBuilder = RequestHeader.builder();
-      final EntityHeader.EntityHeaderBuilder entityHeaderBuilder = EntityHeader.builder();
+    final Request.RequestBuilder requestBuilder = Request.builder();
+    final RequestLine.RequestLineBuilder requestLineBuilder = RequestLine.builder();
+    final GeneralHeader.GeneralHeaderBuilder generalHeaderBuilder = GeneralHeader.builder();
+    final RequestHeader.RequestHeaderBuilder requestHeaderBuilder = RequestHeader.builder();
+    final EntityHeader.EntityHeaderBuilder entityHeaderBuilder = EntityHeader.builder();
 
-      // we don't use "try with resources" here because we need to leave the connection
-      // open until we respond
+    String requestLine = "";
+    while(requestLine != null && !(requestLine = in.readLine()).equals(""))
+    {
+      if (requestLine.equals("")) break;
+      log.info("parsing request: {}", requestLine);
+
       try {
-        final List<String> lines = Arrays.asList(request.split("\n"));
-        //  first we strip off the request line
-        final String line = lines.get(0);
-        final String[] inputLineParts = line.split(" ");
-        log.debug("line parts: {} {} {}", inputLineParts);
-        Optional.ofNullable(inputLineParts[0]).map((part1) ->
+        if (requestLine.contains("GET"))
         {
-          log.debug("Request Method: ", part1);
-          requestLineBuilder.method(RequestLine.Method.valueOf(part1));
-          Optional.ofNullable(inputLineParts[1]).map((part2) ->
-              requestLineBuilder.requestUri(part2));
-          Optional.ofNullable(inputLineParts[2]).map((part3) ->
-              requestLineBuilder.httpVersion(part3));
-          return requestHeaderBuilder;
-        });
+          final String[] inputLineParts = requestLine.split(" ");
+          log.debug("line parts: {} {} {}", inputLineParts);
 
-        lines.subList(1, lines.size()).forEach((inputLine) ->
+          requestLineBuilder
+              .method(RequestLine.Method.valueOf(inputLineParts[0]))
+              .requestUri(inputLineParts[1])
+              .httpVersion(inputLineParts[2])
+              .build();
+        }
+        else if (requestLine.contains(":"))
         {
-          log.debug("inputLine: {}", inputLine);
+          log.debug("inputLine: {}", requestLine);
 
           // A cheap way to parse out header fields and values.
-          String field = inputLine.split(":")[0].trim();
-          String value = inputLine.split(":")[1].trim();
+          String field = requestLine.split(":")[0].trim();
+          String value = requestLine.split(":")[1].trim();
 
-          switch (field) {
+          switch (field)
+          {
 
             // GeneralHeader fields
             case (GeneralHeader.CACHE_CONTROL):
@@ -163,18 +164,17 @@ public class RequestParser {
               entityHeaderBuilder.lastModified(value);
               break;
           }
-        });
-        return Request.builder()
-            .entitylHeader(entityHeaderBuilder.build())
-            .generalHeader(generalHeaderBuilder.build())
-            .requestHeader(requestHeaderBuilder.build())
-            .requestLine(requestLineBuilder.build())
-            .build();
+        }
       } catch (Exception e) {
-        log.error("problem parsing line: ");
+        log.error("problem parsing line: {}", requestLine);
         e.printStackTrace();
       }
     }
-    return null;
+    return Request.builder()
+        .entitylHeader(entityHeaderBuilder.build())
+        .generalHeader(generalHeaderBuilder.build())
+        .requestHeader(requestHeaderBuilder.build())
+        .requestLine(requestLineBuilder.build())
+        .build();
   }
 }

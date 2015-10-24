@@ -1,23 +1,27 @@
 package com.benglasser.http;
 
 import com.benglasser.http.handlers.RequestHandler;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 
+@Getter
+@Setter
 @RequiredArgsConstructor
 public class HttpServer {
 
-  final ExecutorService executor;
+  private Thread runningThread= null;
+
+  private final ExecutorService executor;
+  private final ServerSocket listener;
 
   public HttpServer start() {
-    final int LISTENING_PORT = 8000;
-    final ServerSocket listener;
     try {
-      listener = new ServerSocket(LISTENING_PORT, 8000);
-      System.out.println("Listening on port " + LISTENING_PORT);
+      System.out.println("Listening on port " + listener.getLocalPort());
       for (; ; ) {
         Socket connection = listener.accept();
         RequestHandler handler = RequestHandler.getInstance(connection, "src/main/resources/srv/www");
