@@ -33,13 +33,6 @@ public class RequestHandler implements Runnable
   private final Socket connection;
   private final String rootDirectory;
 
-  /**
-   * parse request for connection and returns a Request object.
-   *
-   * @return
-   * @see <a href="https://tools.ietf.org/html/rfc2616#section-4.5">RFC 2616 section 4.5</a>
-   */
-
   @Override
   public void run()
   {
@@ -52,6 +45,7 @@ public class RequestHandler implements Runnable
             new PrintWriter(connection.getOutputStream(), true);
     )
     {
+
       final Request request = RequestParser.parse(in);
 
       if (request != null && request.getRequestLine().getMethod().compareTo(RequestLine.Method.GET) == 0)
