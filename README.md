@@ -4,7 +4,6 @@ a simple http server I made to learn RFC 2616
 
 At this point the server has severe limitations and only handles `GET` requests.  It handles these requests in the most minimal way possible only returning the requested file resource and a `Content-Length` Entity Header.  the server is multithreaded adn an example of how to run it can be found in [com.benglasser.http.Main](/src/main/java/com/benglasser/http/Main.java)
 
-
 ```
 import java.util.concurrent.ExecutorService;
 
